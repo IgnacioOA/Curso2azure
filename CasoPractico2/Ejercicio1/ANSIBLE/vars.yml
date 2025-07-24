@@ -1,6 +1,0 @@
-# vars.yml
-acr_login_server: noacrnachoejercicio1.azurecr.io
-acr_username: noacrnachoejercicio1
-acr_password: ddJRv5nRRzqGK8t25xmRyZFjCEKBaGNOlkRuAYyKz9+ACRBSRTnL
-image_name: nginx:casopractico2
-container_name: "nginx_web"
