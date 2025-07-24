@@ -1,0 +1,4 @@
+acr_name: noacrnachoejercicio1
+namespace: default
+front_image: "{{ acr_name }}.azurecr.io/azure-vote-front:casopractico2"
+redis_image: "{{ acr_name }}.azurecr.io/redis:casopractico2"

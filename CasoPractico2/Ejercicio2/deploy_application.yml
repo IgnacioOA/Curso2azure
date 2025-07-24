@@ -1,0 +1,96 @@
+---
+- name: Desplegar aplicación en AKS
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - variables.yml
+  collections:
+    - community.kubernetes
+
+  tasks:
+
+    - name: Crear deployment Redis
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: redis
+            namespace: "{{ namespace }}"
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: redis
+            template:
+              metadata:
+                labels:
+                  app: redis
+              spec:
+                containers:
+                  - name: redis
+                    image: "{{ redis_image }}"
+                    ports:
+                      - containerPort: 6379
+
+    - name: Crear servicio Redis
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: redis
+            namespace: "{{ namespace }}"
+          spec:
+            selector:
+              app: redis
+            ports:
+              - port: 6379
+                targetPort: 6379
+
+    - name: Crear deployment Frontend
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: azure-vote-front
+            namespace: "{{ namespace }}"
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: azure-vote-front
+            template:
+              metadata:
+                labels:
+                  app: azure-vote-front
+              spec:
+                containers:
+                  - name: azure-vote-front
+                    image: "{{ front_image }}"
+                    ports:
+                      - containerPort: 80
+                    env:
+                      - name: REDIS
+                        value: "redis"
+
+    - name: Crear servicio Frontend (LoadBalancer)
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: azure-vote-front
+            namespace: "{{ namespace }}"
+          spec:
+            type: LoadBalancer
+            selector:
+              app: azure-vote-front
+            ports:
+              - port: 80
+                targetPort: 80
